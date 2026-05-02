@@ -1,0 +1,17 @@
+{
+  "name": "codefy-prospecting",
+  "version": "0.1.0",
+  "description": "Agente de prospección B2B para Codefy. Genera análisis ejecutivos en PDF a partir de datos públicos del prospect.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "pdf": "node scripts/html-to-pdf.mjs",
+    "postinstall": "playwright install chromium"
+  },
+  "dependencies": {
+    "playwright": "^1.48.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

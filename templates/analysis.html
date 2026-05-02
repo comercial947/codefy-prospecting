@@ -1,0 +1,464 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>{{BRAND_NAME}} · Análisis Codefy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* =========================================================
+     CODEFY — Plantilla madre del PDF de análisis
+     Reemplazar los {{...}} antes de exportar.
+     ========================================================= */
+
+  :root {
+    --black: #0A0A0A;
+    --ink: #1A1A1A;
+    --soft: #6B6B6B;
+    --line: #E5E0DA;
+    --smoke: #F5F0EB;
+    --paper: #FFFFFF;
+    --accent: #2563EB;
+    --accent-soft: #EEF2FF;
+    --good: #16A34A;
+    --warn: #D97706;
+    --bad: #DC2626;
+    --violet: #7C3AED;
+  }
+
+  @page {
+    size: A4;
+    margin: 0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.45;
+    color: var(--ink);
+    background: var(--paper);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    padding: 14mm 14mm 12mm 14mm;
+    page-break-after: always;
+    position: relative;
+    background: var(--paper);
+  }
+  .page:last-child { page-break-after: auto; }
+
+  /* ---------- HEADER ---------- */
+  .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    border-bottom: 1px solid var(--line);
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+  }
+  .head .brand {
+    font-weight: 800;
+    letter-spacing: -0.01em;
+    font-size: 11pt;
+    color: var(--black);
+  }
+  .head .meta {
+    font-size: 8.5pt;
+    color: var(--soft);
+    text-align: right;
+    line-height: 1.35;
+  }
+
+  /* ---------- HERO ---------- */
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    padding: 14px 0 16px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 14px;
+  }
+  .hero-line1 {
+    font-size: 22pt;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--black);
+    line-height: 1.05;
+    margin-bottom: 6px;
+  }
+  .hero-line2 {
+    font-size: 11pt;
+    color: var(--soft);
+    font-weight: 500;
+    margin-bottom: 10px;
+  }
+  .hero-sub {
+    font-size: 9.5pt;
+    color: var(--ink);
+    line-height: 1.55;
+  }
+
+  /* Rev card */
+  .rev-card {
+    background: var(--smoke);
+    border-radius: 6px;
+    padding: 14px 16px;
+    border-left: 3px solid var(--accent);
+  }
+  .rev-card .label {
+    font-size: 8pt;
+    color: var(--soft);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .rev-card .value {
+    font-size: 26pt;
+    font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+  .rev-card .caption {
+    font-size: 8.5pt;
+    color: var(--soft);
+    line-height: 1.4;
+  }
+
+  /* ---------- SECTION ---------- */
+  .section-title {
+    font-size: 8pt;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-weight: 700;
+    color: var(--soft);
+    margin: 14px 0 8px;
+  }
+
+  /* ---------- DATA TABLE ---------- */
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 9.5pt;
+    margin-bottom: 10px;
+  }
+  .data-table th, .data-table td {
+    text-align: left;
+    padding: 7px 10px;
+    border-bottom: 1px solid var(--line);
+  }
+  .data-table th {
+    font-weight: 600;
+    color: var(--soft);
+    font-size: 8pt;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .data-table td.value { font-weight: 600; color: var(--black); }
+  .data-table td.benchmark { color: var(--soft); font-size: 9pt; }
+  .data-table .dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    vertical-align: middle;
+  }
+  .dot.green { background: var(--good); }
+  .dot.amber { background: var(--warn); }
+  .dot.red   { background: var(--bad); }
+
+  /* ---------- HALLAZGOS ---------- */
+  .findings {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-top: 6px;
+  }
+  .finding {
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    padding: 12px 14px;
+    background: var(--paper);
+  }
+  .finding .tag {
+    display: inline-block;
+    font-size: 7.5pt;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    padding: 3px 8px;
+    border-radius: 3px;
+    margin-bottom: 6px;
+  }
+  .tag.critical    { background: #FEE2E2; color: var(--bad); }
+  .tag.opportunity { background: var(--accent-soft); color: var(--accent); }
+  .tag.quickwin    { background: #DCFCE7; color: var(--good); }
+  .tag.migration   { background: #EDE9FE; color: var(--violet); }
+  .finding h3 {
+    font-size: 11pt;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 4px;
+    letter-spacing: -0.01em;
+  }
+  .finding p {
+    font-size: 9.5pt;
+    color: var(--ink);
+    line-height: 1.5;
+  }
+
+  /* ---------- METHOD CARDS ---------- */
+  .methods {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 6px;
+  }
+  .method {
+    background: var(--smoke);
+    border-radius: 6px;
+    padding: 12px;
+  }
+  .method .step {
+    font-size: 8pt;
+    color: var(--soft);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+  .method h4 {
+    font-size: 10pt;
+    font-weight: 700;
+    color: var(--black);
+    margin-bottom: 4px;
+  }
+  .method p {
+    font-size: 8.5pt;
+    color: var(--ink);
+    line-height: 1.45;
+  }
+
+  /* ---------- CTA ---------- */
+  .cta {
+    margin-top: 14px;
+    border-top: 1px solid var(--line);
+    padding-top: 12px;
+  }
+  .cta h3 {
+    font-size: 13pt;
+    font-weight: 800;
+    color: var(--black);
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+  .cta p {
+    font-size: 9.5pt;
+    color: var(--ink);
+    line-height: 1.55;
+    margin-bottom: 8px;
+  }
+  .deliverables {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px 18px;
+    font-size: 9pt;
+    color: var(--ink);
+  }
+  .deliverables li {
+    list-style: none;
+    padding-left: 14px;
+    position: relative;
+  }
+  .deliverables li::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 7px;
+    width: 6px; height: 6px;
+    background: var(--accent);
+    border-radius: 50%;
+  }
+
+  /* ---------- FOOTER ---------- */
+  .foot {
+    position: absolute;
+    bottom: 8mm;
+    left: 14mm;
+    right: 14mm;
+    display: flex;
+    justify-content: space-between;
+    font-size: 8pt;
+    color: var(--soft);
+    border-top: 1px solid var(--line);
+    padding-top: 6px;
+  }
+</style>
+</head>
+<body>
+
+<!-- =====================  PÁGINA 1  ===================== -->
+<section class="page">
+
+  <header class="head">
+    <div class="brand">CODEFY · Growth Audit</div>
+    <div class="meta">
+      Para: {{BRAND_NAME}}<br/>
+      {{DATE}} · Confidencial
+    </div>
+  </header>
+
+  <div class="hero">
+    <div>
+      <div class="hero-line1">{{HERO_LINE_1}}</div>
+      <div class="hero-line2">{{HERO_LINE_2}}</div>
+      <p class="hero-sub">{{HERO_SUB}}</p>
+    </div>
+    <div class="rev-card">
+      <div class="label">Upside estimado</div>
+      <div class="value">+{{UPSIDE_PCT}}%</div>
+      <div class="caption">{{UPSIDE_CAPTION}}</div>
+    </div>
+  </div>
+
+  <div class="section-title">Datos verificables · {{TRAFFIC_SOURCE}}</div>
+  <table class="data-table">
+    <thead>
+      <tr>
+        <th>Métrica</th>
+        <th>{{BRAND_SHORT}}</th>
+        <th>Benchmark sector</th>
+        <th>Lectura</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Visitas mensuales</td>
+        <td class="value">{{VISITS}}</td>
+        <td class="benchmark">{{VISITS_BENCH}}</td>
+        <td><span class="dot {{VISITS_DOT}}"></span>{{VISITS_READING}}</td>
+      </tr>
+      <tr>
+        <td>Bounce rate</td>
+        <td class="value">{{BOUNCE}}%</td>
+        <td class="benchmark">{{BOUNCE_BENCH}}</td>
+        <td><span class="dot {{BOUNCE_DOT}}"></span>{{BOUNCE_READING}}</td>
+      </tr>
+      <tr>
+        <td>Mobile share</td>
+        <td class="value">{{MOBILE}}%</td>
+        <td class="benchmark">{{MOBILE_BENCH}}</td>
+        <td><span class="dot {{MOBILE_DOT}}"></span>{{MOBILE_READING}}</td>
+      </tr>
+      <tr>
+        <td>Páginas / visita</td>
+        <td class="value">{{PAGES}}</td>
+        <td class="benchmark">{{PAGES_BENCH}}</td>
+        <td><span class="dot {{PAGES_DOT}}"></span>{{PAGES_READING}}</td>
+      </tr>
+      <tr>
+        <td>Tiempo en sitio</td>
+        <td class="value">{{TIME}}</td>
+        <td class="benchmark">{{TIME_BENCH}}</td>
+        <td><span class="dot {{TIME_DOT}}"></span>{{TIME_READING}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="section-title">Tres hallazgos prioritarios</div>
+  <div class="findings">
+
+    <div class="finding">
+      <span class="tag critical">Crítico</span>
+      <h3>{{F1_TITLE}}</h3>
+      <p>{{F1_BODY}}</p>
+    </div>
+
+    <div class="finding">
+      <span class="tag opportunity">Oportunidad</span>
+      <h3>{{F2_TITLE}}</h3>
+      <p>{{F2_BODY}}</p>
+    </div>
+
+    <div class="finding">
+      <span class="tag quickwin">Quick Win</span>
+      <h3>{{F3_TITLE}}</h3>
+      <p>{{F3_BODY}}</p>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <div>Codefy · Growth Audit · Confidencial</div>
+    <div>1 / 2</div>
+  </div>
+</section>
+
+<!-- =====================  PÁGINA 2  ===================== -->
+<section class="page">
+
+  <header class="head">
+    <div class="brand">CODEFY · Growth Audit</div>
+    <div class="meta">{{BRAND_NAME}} · {{DATE}}</div>
+  </header>
+
+  <div class="section-title">Cómo lo abordaríamos</div>
+  <div class="methods">
+
+    <div class="method">
+      <div class="step">PASO 01</div>
+      <h4>{{M1_TITLE}}</h4>
+      <p>{{M1_BODY}}</p>
+    </div>
+
+    <div class="method">
+      <div class="step">PASO 02</div>
+      <h4>{{M2_TITLE}}</h4>
+      <p>{{M2_BODY}}</p>
+    </div>
+
+    <div class="method">
+      <div class="step">PASO 03</div>
+      <h4>{{M3_TITLE}}</h4>
+      <p>{{M3_BODY}}</p>
+    </div>
+
+  </div>
+
+  <div class="section-title" style="margin-top: 18px;">Contexto del stack</div>
+  <p style="font-size: 9.5pt; color: var(--ink); line-height: 1.55;">
+    {{STACK_NARRATIVE}}
+  </p>
+
+  <div class="cta">
+    <h3>30 minutos. Una validación, no una venta.</h3>
+    <p>
+      Si los tres hallazgos resuenan, podemos profundizar en cualquiera. La sesión
+      es para confirmar si lo que vimos en datos públicos coincide con lo que ven
+      desde adentro — sin pitch, sin propuesta. Si no avanza, te queda el análisis.
+    </p>
+    <ul class="deliverables">
+      <li>Validación con datos de tu GA / Shopify</li>
+      <li>Priorización de los 3 hallazgos por impacto real</li>
+      <li>Roadmap de 90 días si decidimos avanzar</li>
+      <li>Estimación de esfuerzo y ventana</li>
+    </ul>
+  </div>
+
+  <div class="foot">
+    <div>
+      Edgar Rivera · Growth Partner · Codefy<br/>
+      comercial@codefy.com.mx · WhatsApp 5215646921011
+    </div>
+    <div>2 / 2</div>
+  </div>
+</section>
+
+</body>
+</html>

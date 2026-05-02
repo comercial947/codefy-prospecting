@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<title>{{BRAND_NAME}} · Análisis Migración Codefy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Hereda paleta y reglas de analysis.html. Solo cambian:
+     - 2 hallazgos críticos en lugar de 1
+     - Tarjeta violeta de migración como 3er hallazgo
+     - Sección de rutas de migración (Tiendanube vs Shopify) en página 2 */
+
+  :root {
+    --black: #0A0A0A; --ink: #1A1A1A; --soft: #6B6B6B;
+    --line: #E5E0DA; --smoke: #F5F0EB; --paper: #FFFFFF;
+    --accent: #2563EB; --accent-soft: #EEF2FF;
+    --good: #16A34A; --warn: #D97706; --bad: #DC2626;
+    --violet: #7C3AED; --violet-soft: #EDE9FE;
+  }
+  @page { size: A4; margin: 0; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    font-family: 'Inter', sans-serif;
+    font-size: 10.5pt; line-height: 1.45;
+    color: var(--ink); background: var(--paper);
+    -webkit-font-smoothing: antialiased;
+  }
+  .page {
+    width: 210mm; min-height: 297mm;
+    padding: 14mm 14mm 12mm 14mm;
+    page-break-after: always; position: relative;
+    background: var(--paper);
+  }
+  .page:last-child { page-break-after: auto; }
+
+  .head { display: flex; justify-content: space-between; align-items: flex-start;
+          border-bottom: 1px solid var(--line); padding-bottom: 8px; margin-bottom: 14px; }
+  .head .brand { font-weight: 800; font-size: 11pt; color: var(--black); letter-spacing: -0.01em; }
+  .head .meta { font-size: 8.5pt; color: var(--soft); text-align: right; line-height: 1.35; }
+
+  .hero { display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+          padding: 14px 0 16px; border-bottom: 1px solid var(--line); margin-bottom: 14px; }
+  .hero-line1 { font-size: 22pt; font-weight: 800; letter-spacing: -0.02em;
+                color: var(--black); line-height: 1.05; margin-bottom: 6px; }
+  .hero-line2 { font-size: 11pt; color: var(--soft); font-weight: 500; margin-bottom: 10px; }
+  .hero-sub { font-size: 9.5pt; color: var(--ink); line-height: 1.55; }
+
+  .rev-card { background: var(--violet-soft); border-radius: 6px;
+              padding: 14px 16px; border-left: 3px solid var(--violet); }
+  .rev-card .label { font-size: 8pt; color: var(--soft); text-transform: uppercase;
+                     letter-spacing: 0.08em; font-weight: 600; margin-bottom: 4px; }
+  .rev-card .value { font-size: 26pt; font-weight: 800; color: var(--violet);
+                     letter-spacing: -0.02em; line-height: 1; margin-bottom: 4px; }
+  .rev-card .caption { font-size: 8.5pt; color: var(--soft); line-height: 1.4; }
+
+  .section-title { font-size: 8pt; text-transform: uppercase; letter-spacing: 0.1em;
+                   font-weight: 700; color: var(--soft); margin: 14px 0 8px; }
+
+  .findings { display: grid; gap: 10px; }
+  .finding { border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; }
+  .finding .tag { display: inline-block; font-size: 7.5pt; font-weight: 700;
+                  text-transform: uppercase; letter-spacing: 0.08em;
+                  padding: 3px 8px; border-radius: 3px; margin-bottom: 6px; }
+  .tag.critical  { background: #FEE2E2; color: var(--bad); }
+  .tag.migration { background: var(--violet-soft); color: var(--violet); }
+  .finding h3 { font-size: 11pt; font-weight: 700; color: var(--black);
+                margin-bottom: 4px; letter-spacing: -0.01em; }
+  .finding p { font-size: 9.5pt; color: var(--ink); line-height: 1.5; }
+
+  /* Tabla de rutas de migración */
+  .routes { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 6px; }
+  .route { border: 1px solid var(--line); border-radius: 6px; padding: 14px; }
+  .route h4 { font-size: 11pt; font-weight: 700; color: var(--black); margin-bottom: 4px; }
+  .route .platform { font-size: 8pt; text-transform: uppercase;
+                     letter-spacing: 0.08em; color: var(--violet);
+                     font-weight: 700; margin-bottom: 8px; }
+  .route ul { list-style: none; padding: 0; }
+  .route li { font-size: 9pt; color: var(--ink); padding: 4px 0 4px 14px;
+              position: relative; line-height: 1.4; }
+  .route li::before { content: '→'; position: absolute; left: 0;
+                      color: var(--violet); font-weight: 700; }
+  .route .verdict { margin-top: 10px; padding-top: 8px;
+                    border-top: 1px solid var(--line);
+                    font-size: 9pt; color: var(--soft); font-style: italic; }
+
+  .cta { margin-top: 14px; border-top: 1px solid var(--line); padding-top: 12px; }
+  .cta h3 { font-size: 13pt; font-weight: 800; color: var(--black);
+            margin-bottom: 6px; letter-spacing: -0.01em; }
+  .cta p { font-size: 9.5pt; color: var(--ink); line-height: 1.55; margin-bottom: 8px; }
+
+  .foot { position: absolute; bottom: 8mm; left: 14mm; right: 14mm;
+          display: flex; justify-content: space-between;
+          font-size: 8pt; color: var(--soft);
+          border-top: 1px solid var(--line); padding-top: 6px; }
+</style>
+</head>
+<body>
+
+<!-- =====================  PÁGINA 1  ===================== -->
+<section class="page">
+
+  <header class="head">
+    <div class="brand">CODEFY · Migration Audit</div>
+    <div class="meta">
+      Para: {{BRAND_NAME}}<br/>
+      {{DATE}} · Confidencial
+    </div>
+  </header>
+
+  <div class="hero">
+    <div>
+      <div class="hero-line1">{{HERO_LINE_1}}</div>
+      <div class="hero-line2">{{HERO_LINE_2}}</div>
+      <p class="hero-sub">{{HERO_SUB}}</p>
+    </div>
+    <div class="rev-card">
+      <div class="label">Costo del stack actual</div>
+      <div class="value">{{STACK_COST_PCT}}%</div>
+      <div class="caption">{{STACK_COST_CAPTION}}</div>
+    </div>
+  </div>
+
+  <div class="section-title">Tres hallazgos prioritarios</div>
+  <div class="findings">
+
+    <div class="finding">
+      <span class="tag critical">Crítico</span>
+      <h3>{{F1_TITLE}}</h3>
+      <p>{{F1_BODY}}</p>
+    </div>
+
+    <div class="finding">
+      <span class="tag critical">Crítico</span>
+      <h3>{{F2_TITLE}}</h3>
+      <p>{{F2_BODY}}</p>
+    </div>
+
+    <div class="finding">
+      <span class="tag migration">Migración</span>
+      <h3>{{F3_TITLE}}</h3>
+      <p>{{F3_BODY}}</p>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <div>Codefy · Migration Audit · Confidencial</div>
+    <div>1 / 2</div>
+  </div>
+</section>
+
+<!-- =====================  PÁGINA 2  ===================== -->
+<section class="page">
+
+  <header class="head">
+    <div class="brand">CODEFY · Migration Audit</div>
+    <div class="meta">{{BRAND_NAME}} · {{DATE}}</div>
+  </header>
+
+  <div class="section-title">Dos rutas de salida</div>
+  <div class="routes">
+
+    <div class="route">
+      <div class="platform">RUTA A · Tiendanube</div>
+      <h4>{{ROUTE_A_TITLE}}</h4>
+      <ul>
+        <li>{{ROUTE_A_POINT_1}}</li>
+        <li>{{ROUTE_A_POINT_2}}</li>
+        <li>{{ROUTE_A_POINT_3}}</li>
+        <li>{{ROUTE_A_POINT_4}}</li>
+      </ul>
+      <div class="verdict">{{ROUTE_A_VERDICT}}</div>
+    </div>
+
+    <div class="route">
+      <div class="platform">RUTA B · Shopify</div>
+      <h4>{{ROUTE_B_TITLE}}</h4>
+      <ul>
+        <li>{{ROUTE_B_POINT_1}}</li>
+        <li>{{ROUTE_B_POINT_2}}</li>
+        <li>{{ROUTE_B_POINT_3}}</li>
+        <li>{{ROUTE_B_POINT_4}}</li>
+      </ul>
+      <div class="verdict">{{ROUTE_B_VERDICT}}</div>
+    </div>
+
+  </div>
+
+  <div class="section-title" style="margin-top: 18px;">Por qué ahora</div>
+  <p style="font-size: 9.5pt; color: var(--ink); line-height: 1.55;">
+    {{TIMING_NARRATIVE}}
+  </p>
+
+  <div class="cta">
+    <h3>30 minutos para validar la ruta correcta.</h3>
+    <p>
+      Migrar mal cuesta más que no migrar. La sesión es para entender tu operación
+      desde adentro y confirmar cuál de las dos rutas tiene sentido — sin propuesta,
+      sin compromiso. Si decides avanzar, te queda un plan de migración detallado.
+    </p>
+  </div>
+
+  <div class="foot">
+    <div>
+      Edgar Rivera · Growth Partner · Codefy<br/>
+      comercial@codefy.com.mx · WhatsApp 5215646921011
+    </div>
+    <div>2 / 2</div>
+  </div>
+</section>
+
+</body>
+</html>

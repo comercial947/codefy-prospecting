@@ -1,0 +1,8 @@
+node_modules/
+output/*.pdf
+output/*.html
+!output/.gitkeep
+.DS_Store
+.env
+.env.local
+*.log
