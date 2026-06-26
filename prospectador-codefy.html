@@ -1,0 +1,425 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Codefy · Prospección</title>
+<style>
+:root{--navy:#0a0a0a;--gold:#F2CB4D;--ink:#0a0a0a;--soft:#f4f6fa;--line:#e3e8f0;--ok:#16a34a;--warn:#b91c1c;}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;background:var(--soft);color:var(--ink)}
+.wrap{max-width:560px;margin:0 auto;padding:16px 14px 120px}
+.top{position:sticky;top:0;z-index:5;background:var(--navy);color:#fff;margin:-16px -14px 14px;padding:14px;border-radius:0 0 16px 16px}
+.top h1{font-size:16px;margin:0;font-weight:800}.top small{color:#aebbd0}
+.banner{display:inline-block;margin-top:6px;font-size:11px;font-weight:800;padding:3px 9px;border-radius:999px}
+.banner.beta{background:#fde68a;color:#7c2d12}.banner.live{background:#16361f;color:#86efac;border:1px solid #1f7a3f}
+.kpis{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.kpi{background:#141414;border:1px solid #2a2a2a;border-radius:10px;padding:6px 9px;font-size:11px;color:#cdcdcd}
+.kpi b{display:block;font-size:16px;color:var(--gold)}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:16px;margin:12px 0;box-shadow:0 1px 2px rgba(10,22,40,.04)}
+.card h2{margin:0 0 6px;font-size:18px}.card p{margin:6px 0;line-height:1.45;font-size:15px}
+.muted{color:#647189;font-size:13px}
+.btn{display:block;width:100%;border:0;border-radius:12px;padding:15px;font-size:16px;font-weight:700;cursor:pointer;margin-top:10px}
+.btn.gold{background:var(--gold);color:var(--navy)}.btn.navy{background:var(--navy);color:#fff}
+.btn.ghost{background:#fff;color:var(--navy);border:1.5px solid var(--navy)}.btn.ok{background:var(--ok);color:#fff}
+.btn.big{padding:22px;font-size:19px}.btn.sm{padding:11px;font-size:14px}
+.row{display:flex;gap:8px}.row .btn{margin-top:0}
+.pill{display:inline-block;background:#eef2f8;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:700;color:#33475e;margin:2px 4px 2px 0}
+.copybox{background:var(--navy);color:#fff;border-radius:12px;padding:13px;font-size:15px;word-break:break-word;line-height:1.4}
+.copybox .lbl{font-size:11px;color:var(--gold);text-transform:uppercase;letter-spacing:1px;margin-bottom:6px}
+input[type=text],input[type=date],textarea{width:100%;border:1.5px solid var(--line);border-radius:12px;padding:13px;font-size:15px;font-family:inherit;margin-top:8px}
+textarea{min-height:80px;resize:vertical}
+.warn{background:#fff4f4;border:1.5px solid #f3c0c0;color:#9b1c1c;border-radius:12px;padding:11px 12px;font-size:13px;font-weight:700;margin-top:10px}
+.info{background:#eef5ff;border:1.5px solid #c5dbff;color:#1e3a8a;border-radius:12px;padding:11px 12px;font-size:13px;margin-top:10px}
+.dates{background:#f7f9fc;border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;color:#33475e;margin-top:8px;line-height:1.7}
+.dates b{color:var(--navy)}
+.bitlog{background:#0a0a0a;color:#cdcdcd;border-radius:10px;padding:10px;font-size:12px;white-space:pre-wrap;margin-top:8px;line-height:1.5;max-height:120px;overflow:auto}
+.check{display:flex;align-items:center;gap:10px;background:#f7f9fc;border:1.5px solid var(--line);border-radius:12px;padding:13px;margin-top:8px;font-size:15px;cursor:pointer}
+.check input{width:22px;height:22px;accent-color:var(--ok)}
+.prog{font-size:13px;color:#647189;font-weight:700}
+.bar{height:8px;background:#e7ecf3;border-radius:999px;overflow:hidden;margin:8px 0 2px}.bar>i{display:block;height:100%;background:var(--gold)}
+.fab{position:fixed;right:14px;bottom:16px;z-index:9;background:#25D366;color:#fff;border:0;border-radius:999px;padding:13px 16px;font-weight:800;font-size:14px;box-shadow:0 6px 18px rgba(0,0,0,.2);cursor:pointer}
+.center{text-align:center}.big{font-size:26px;font-weight:900;line-height:1.15;margin:6px 0}
+.frase{font-size:18px;font-style:italic;color:var(--navy);margin:14px 0;line-height:1.4}
+.tag{font-size:12px;font-weight:800;padding:3px 8px;border-radius:8px}
+.tag.due{background:#fee2e2;color:#b91c1c}.tag.s{background:#e6f4ea;color:#15803d}.tag.m{background:#fef3c7;color:#92400e}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--navy);color:#fff;padding:11px 16px;border-radius:12px;font-size:14px;z-index:30;opacity:0;transition:.25s}.toast.show{opacity:1}
+a.link{color:#2563eb;font-weight:700;text-decoration:none}.logo{font-size:34px}
+</style></head>
+<body>
+
+<!-- ============================================================= -->
+<!--  👉👉👉  PEGA AQUÍ TU LINK QUE TERMINA EN /exec  👈👈👈        -->
+<script> const API = "PEGA_AQUI_TU_URL_/exec"; // <-- pega aquí el /exec de tu App Web de Codefy </script>
+<!-- ============================================================= -->
+
+<div class="wrap">
+  <div class="top"><h1>⚡ Codefy · Prospección</h1><small id="topsub">Bienvenido</small>
+  <div id="kpis" class="kpis"></div></div>
+  <div id="app"></div>
+</div>
+<button class="fab" onclick="alan()">💬 Dudas → Alan</button>
+<div class="toast" id="toast"></div>
+
+<script>
+var S={sdr:'SDR',fecha:'',meta:20,estado:null,hechos:[],nuevos:[],idx:0,beta:false,seg:[],si:0,ganchos:[],gi:0};
+
+/* ====== CONEXIÓN (real=fetch · beta=simulado, no toca la hoja) ====== */
+function run(fn,args){
+  if(S.beta) return new Promise(function(res){setTimeout(function(){res(BETA(fn,args));},150);});
+  if(!API||API.indexOf('PEGA_AQUI')>=0) return Promise.reject(new Error('Falta pegar tu link /exec en el HTML (variable API).'));
+  return fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:fn,args:args||[]})})
+    .then(function(r){return r.json();}).then(function(j){if(!j.ok)throw new Error(j.error||'error');return j.data;});
+}
+function BETA(fn,args){var t=new Date().toISOString().slice(0,10);
+  if(fn=='estadoInicial')return {sdr:S.sdr,fecha:t,kpi:{total:4,leads:4,conectados:1,mensajes:1,conversaciones:0,reuniones:0,invitesHoy:0},pend:{aceptar:2,ganchos:1,seguimientos:1,nuevos:4}};
+  if(fn=='listaAceptar')return [{fila:1001,nombre:'PRÁCTICA · Juan Pérez',empresa:'Empresa Demo',cargo:'Director de Marketing',finv:'2026-06-20',url:''},{fila:1002,nombre:'PRÁCTICA · Ana López',empresa:'Tienda Ejemplo',cargo:'Gerente Comercial',finv:'2026-06-20',url:''}];
+  if(fn=='listaGanchos')return [{fila:1003,nombre:'PRÁCTICA · Carlos Ruiz',cargo:'CEO',empresa:'Negocio Test',face:'2026-06-23',url:''}];
+  if(fn=='listaSeguimientos')return [{fila:1004,nombre:'PRÁCTICA · María Gómez',cargo:'Head of Growth',empresa:'Marca Demo',status:'Mensaje enviado',finv:'2026-06-18',face:'2026-06-21',fgan:'2026-06-23',prox:'2026-06-26',dias:3,vence:true,bit:'2026-06-21 aceptó conexión\n2026-06-23 gancho enviado'}];
+  if(fn=='siguientesNuevos'){var n=args[0]||4;return betaLeads().slice(0,Math.min(n,4));}
+  if(fn=='fraseDelDia'){var f=['El que practica gana. Hoy practicaste.','Modo práctica dominado. Ahora a facturar de verdad.','Cada cita empieza con un buen primer toque.'];return f[Math.floor(Math.random()*f.length)];}
+  return true;
+}
+function betaLeads(){return [
+  {fila:2001,nombre:'PRÁCTICA · Roberto Díaz',cargo:'Director Comercial',empresa:'Autos del Valle',pos:'Director Comercial en Autos del Valle',buscar:'Roberto Díaz Autos del Valle'},
+  {fila:2002,nombre:'PRÁCTICA · Laura Méndez',cargo:'Gerente de Marketing',empresa:'Clínica Sonrisa',pos:'Gerente de Marketing en Clínica Sonrisa',buscar:'Laura Méndez Clínica Sonrisa'},
+  {fila:2003,nombre:'PRÁCTICA · Diego Torres',cargo:'Dueño',empresa:'Muebles Torres',pos:'Dueño en Muebles Torres',buscar:'Diego Torres Muebles Torres'},
+  {fila:2004,nombre:'PRÁCTICA · Sofía Ramos',cargo:'Head of Growth',empresa:'Inmobiliaria Norte',pos:'Head of Growth en Inmobiliaria Norte',buscar:'Sofía Ramos Inmobiliaria Norte'}];}
+
+/* ====== utils ====== */
+function set(h){document.getElementById('app').innerHTML=h;window.scrollTo(0,0);}
+function toast(t){var x=document.getElementById('toast');x.textContent=t;x.classList.add('show');setTimeout(function(){x.classList.remove('show');},1800);}
+function copy(txt,btn){
+  function ok(){toast('Copiado ✓');if(btn){var o=btn.textContent;btn.textContent='Copiado ✓';setTimeout(function(){btn.textContent=o;},1400);}}
+  function fb(){try{var ta=document.createElement('textarea');ta.value=txt;ta.style.position='fixed';ta.style.top='0';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();var d=document.execCommand('copy');document.body.removeChild(ta);if(d)ok();else window.prompt('Copia esto manualmente (Ctrl+C):',txt);}catch(e){window.prompt('Copia esto manualmente (Ctrl+C):',txt);}}
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(txt).then(ok).catch(fb);}else{fb();}
+}
+function alan(){var m=encodeURIComponent('Hola Alan, soy '+S.sdr+'. Tengo una duda en la prospección:');window.open('https://wa.me/5215627045594?text='+m,'_blank');}
+function pn(n){return (n||'').replace('PRÁCTICA · ','').split(' ')[0];}
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function dd(x){return x?x:'—';}
+function J(o){window.__t=window.__t||{};var id='o'+(Math.random().toString(36).slice(2));window.__t[id]=o;return "__t['"+id+"']";}
+function liUrl(l){if(l.url && /linkedin\.com/.test(l.url) && l.url.indexOf('PENDIENTE')<0) return l.url;
+  var q=encodeURIComponent((l.nombre||'').replace('PRÁCTICA · ','')+' '+(l.empresa||''));
+  return 'https://www.linkedin.com/search/results/people/?keywords='+q;}
+function btnLi(l){return '<button class="btn navy sm" onclick="window.open(\''+liUrl(l)+'\',\'_blank\')">Abrir LinkedIn ↗</button>';}
+function armarComentario(){var l=S.nuevos[S.idx];var s=(document.getElementById('postTxt')||{}).value||'';document.getElementById('promptOut').value=promptComentario(l,s.trim());}
+function kpi(l,v){return '<div class="kpi">'+l+'<b>'+v+'</b></div>';}
+function err(e){set('<div class="card"><h2>Algo falló</h2><p class="muted">'+esc(e&&e.message||e)+'</p><button class="btn navy" onclick="screenModo()">Volver al inicio</button></div>');}
+function banner(){document.getElementById('topsub').innerHTML='Hola '+S.sdr+' · '+S.fecha+' <span class="banner '+(S.beta?'beta':'live')+'">'+(S.beta?'🧪 PRÁCTICA (no se guarda)':'● EN VIVO')+'</span>';}
+function paintKpis(k){document.getElementById('kpis').innerHTML=kpi('Total',k.total)+kpi('Invites hoy',k.invitesHoy)+kpi('Conectados',k.conectados)+kpi('Conversaciones',k.conversaciones)+kpi('Reuniones',k.reuniones);}
+
+/* ====== PROMPTS PARA CODEFY (los pega el SDR en Claude) ====== */
+function promptComentario(l,snippet){var nom=l.nombre.replace('PRÁCTICA · ','');return [
+'Ayúdame a comentar una publicación de LinkedIn de '+nom+(l.empresa&&l.empresa!='no aplica'?' ('+l.empresa+')':'')+'.',
+'Su publicación dice:',
+'"'+(snippet||'[PEGA AQUÍ LA PUBLICACIÓN]')+'"',
+'',
+'Objetivo del comentario: SOLO abrir conversación y caer bien (calentar al prospecto). NADA de vender, NO menciones Codefy, CRO, SEO ni ofrezcas nada.',
+'Dame UN comentario muy breve (máx 15-20 palabras): de preferencia una pregunta genuina o una observación que invite a que me respondan, mostrando que sí leí su publicación.',
+'Español de México, natural. JAMÁS se debe ver hecho con IA: nada de "felicidades", "gran logro", "excelente trabajo", "totalmente de acuerdo" ni halagos vacíos.'].join('\n');}
+
+function promptGancho(l){var nom=l.nombre.replace('PRÁCTICA · ','');return [
+'Lo que vi en su tienda (lo pego aquí cuando lo tenga): [ ]',
+'',
+'Eres Edgar Rivera, Growth Partner de Codefy: especialistas en CRO, SEO y desarrollo de ecommerce. 6 años, +100 marcas optimizadas, partner oficial de Shopify y Tiendanube. Tono de experto cercano que ayuda, sin venta. Nunca debe verse hecho con IA. Prohibido: increíble, potente, estimado/a, felicidades, emojis.',
+'',
+'REGLA #1: NO INVENTES NADA. Ni la plataforma, ni métricas, ni datos del negocio, ni marcas. Usa SOLO lo que yo te pegue o lo que de verdad veas entrando a su tienda. Si no lo puedes comprobar, no lo pongas. Un dato inventado quema al prospecto.',
+'',
+'Prospecto: '+nom+' · '+l.cargo+' · '+l.empresa,
+'Tienda: [URL]',
+'',
+'PASO 1 — Si arriba todavía NO te pegué lo que vi:',
+'Entra a su tienda y revísala (si no puedes entrar, pídeme en una línea qué venden). Dame SOLO esto y espera mi respuesta:',
+'  a) ¿En qué plataforma está? (Shopify, Tiendanube, VTEX, WooCommerce, Magento). Si no es claro, dilo.',
+'  b) 1 punto fino de conversión anclado a móvil que valga la pena revisar (ficha de producto, carrito, checkout, velocidad o buscador). Concreto, de lo que viste.',
+'',
+'PASO 2 — Cuando te pegue lo que vi, dame DOS entregables:',
+'',
+'1) MENSAJE DE LINKEDIN — corto y directo (60-90 palabras), distinto cada vez, que deje a Edgar como experto y NO como vendedor:',
+'- Entra por algo real de su tienda o su perfil.',
+'- UNA línea de oportunidad: el grueso del tráfico se va sin comprar; se puede vender más del mismo tráfico sin subir el gasto en ads.',
+'- Prueba social en UNA frase, natural: en Codefy optimizamos marcas como [elige 1 o 2 reales según su giro: Cybex, Birdman, Hang Ten, NBA Store, Carnival, Fresafit, B Life, Zenttu].',
+'- Menciona que este mes hay cupo para un par de auditorías CRO sin costo de tiendas de su sector.',
+'- Cierra simple: ¿Te late que lo veamos 30 min?',
+'- Avisa que le armaste una imagen rápida con lo que viste.',
+'',
+'2) LAS 3 MEJORAS PARA LA IMAGEN — 3 mejoras concretas y reales de CRO, SEO o desarrollo para su tienda (basadas en lo que viste). En marco de oportunidad, no de regaño. Una línea cada una. Solo lo comprobable. Y dame para armar la tarjeta: plataforma detectada, punto de fricción principal y el copy real de su portada.',
+'ESTILO DE LA IMAGEN (look & feel Codefy — NO cambies el contenido, solo el estilo): formato cuadrado para LinkedIn. Fondo negro #0a0a0a con acentos en dorado #F2CB4D. Arriba un rótulo chico en dorado y un título en blanco bold con la palabra o número clave en dorado; subtítulo corto en gris claro. Las 3 mejoras, la plataforma y el punto de fricción van en tarjetas sobre el fondo negro, legibles, con acentos en dorado. Pie: línea tenue; abajo a la izquierda un punto dorado + "Codefy" en blanco y debajo en gris "Edgar Rivera · Growth Partner · CRO · SEO · Desarrollo"; abajo a la derecha una frase corta en gris. Tipografía sans serif bold, limpia y con aire.',
+'',
+'Español de México, frases cortas. Corto, concreto y 100% real.'].join('\n');}
+
+function promptSeg(l){var nom=l.nombre.replace('PRÁCTICA · ','');var d=(l.dias>=7?'7':'3');return [
+'Dame un mensaje de seguimiento de LinkedIn (día '+d+') para '+nom+', '+l.cargo+' en '+l.empresa+'.',
+'Soy Edgar Rivera de Codefy (CRO, SEO y desarrollo de ecommerce). Ya le mandé el primer gancho y no me ha contestado.',
+'Breve, sin presionar. Que aporte UN ángulo nuevo de dónde se le va la conversión en su tienda, y recuerde la auditoría CRO sin costo de este mes.',
+'Español de México, máx 45 palabras, frases cortas. JAMÁS se debe ver hecho con IA.'].join('\n');}
+
+var CAL='https://calendly.com/comercial-codefy/30min';
+function promptMasInfo(l){var nom=l.nombre.replace('PRÁCTICA · ','');return [
+'Soy Edgar Rivera de Codefy. '+nom+' ('+l.cargo+' en '+l.empresa+') me respondió y quiere saber más.',
+'Dame 2 o 3 puntos concretos de valor de optimizar su tienda con nosotros (CRO, SEO y desarrollo): más ventas del mismo tráfico, sin subir el gasto en ads. No un pitch, no lista genérica. Tono de experto cercano, español de México, máx 60 palabras, que terminen invitando a un meet corto.',
+'JAMÁS se debe ver hecho con IA.'].join('\n');}
+function promptReporte(l){var nom=l.nombre.replace('PRÁCTICA · ','');return [
+'Soy Edgar Rivera de Codefy. '+nom+' ('+l.cargo+' en '+l.empresa+') pide la auditoría/análisis que ofrecimos.',
+'Dame un mensaje breve: con gusto se la preparamos y se la presentamos en un meet rápido de 30 min sobre sus propios números. Español de México, sin presionar, máx 45 palabras.',
+'JAMÁS se debe ver hecho con IA.'].join('\n');}
+function promptAgenda(l){var nom=l.nombre.replace('PRÁCTICA · ','');return [
+'Soy Edgar Rivera de Codefy. '+nom+' quiere agendar. Dame un mensaje corto y cálido para cerrar el meet e incluye este link: '+CAL,
+'Español de México, máx 35 palabras. JAMÁS se debe ver hecho con IA.'].join('\n');}
+function promptObjecion(l,obj){var nom=l.nombre.replace('PRÁCTICA · ','');return [
+'Soy Edgar Rivera de Codefy. '+nom+' me puso una objeción.',
+'OBJECIÓN:',
+'[PEGA AQUÍ LO QUE TE DIJO]',
+'',
+'Dame una respuesta con enfoque sentir-sintió-descubrió (feel-felt-found), español de México, breve, sin presionar, que reabra el meet. JAMÁS se debe ver hecho con IA.'].join('\n');}
+
+/* Caja de prompt VISIBLE para copiar a mano (sin depender de botones) */
+function promptBox(texto){return '<p class="muted">👇 Copia este texto (tócalo y "Seleccionar todo") y pégaselo a Claude. Completa lo que está entre [corchetes].</p>'+
+  '<textarea class="pbox" onclick="this.focus();this.select();" style="min-height:180px;background:#0a0a0a;color:#e7e7e7;font-size:13px;line-height:1.5">'+esc(texto)+'</textarea>';}
+
+/* ====== GUÍA ====== */
+function screenGuia(){set('<div class="card"><h2>📖 Guía rápida</h2>'+
+'<div class="info"><b>El objetivo:</b> agendar muchas reuniones. Cada reunión es una intención de compra — más reuniones = más ventas. Tómalo con calma y hazlo bien: esto es lo que nos lleva a la meta.</div>'+
+'<p><b>Tu día, paso a paso:</b></p>'+
+'<p>1. <b>Investiga</b> al prospecto (no llegues en frío).<br>'+
+'2. <b>Deja intención:</b> like a sus 2 últimas publicaciones. Si publica ideas, comenta con valor (si dudas, pídele el comentario a Claude).<br>'+
+'3. <b>Manda la invitación</b> a conectar.<br>'+
+'4. <b>Al día siguiente</b> marca quién te aceptó.<br>'+
+'5. A los que aceptaron, mándales el <b>gancho</b> (Claude te lo arma): una observación real de su tienda + auditoría CRO sin costo este mes + 3 mejoras.<br>'+
+'6. <b>Da seguimiento</b> (día 3 y día 7) y registra qué pasó.<br>'+
+'7. <b>Si te responden:</b> el sistema te guía para contestar (más info, agendar, o el reporte se presenta en el meet).</p>'+
+'<div class="warn">⚠️ Regla de oro: el copy JAMÁS debe verse hecho con IA. Revísalo siempre.</div>'+
+'<div class="info">🆘 Si algo te falta, no sabes qué responder o te trabas: <b>toca base con Alan</b> (botón verde de abajo). Para eso está, sin pena.</div>'+
+'<p class="muted">Meta diaria: <b>20 nuevos</b>. Lo que de verdad cuenta: <b>reuniones agendadas</b>.</p>'+
+'<button class="btn navy" onclick="S.estado?screenResumen():screenModo()">Entendido, a trabajar 💪</button></div>');}
+
+/* ====== 0 · MODO ====== */
+function screenModo(){
+  document.getElementById('topsub').textContent='Elige cómo entrar';document.getElementById('kpis').innerHTML='';
+  var apiOk=API&&API.indexOf('PEGA_AQUI')<0;
+  set('<div class="card center"><div class="logo">⚡</div><h2>Hola</h2><p class="muted">¿Cómo quieres entrar hoy?</p>'+
+  '<button class="btn navy big" onclick="encender()">🚀 ENCENDER SISTEMA<br><span style="font-weight:500;font-size:13px">trabajo real · se guarda en la hoja</span></button>'+
+  '<button class="btn gold big" onclick="practica()">🧪 MODO PRÁCTICA (BETA)<br><span style="font-weight:500;font-size:13px">para entrenar · NO se guarda nada</span></button>'+
+  (apiOk?'<p class="muted" style="margin-top:14px">✅ Conectado a tu hoja.</p>':'<p class="warn" style="margin-top:14px">El sistema real aún no tiene el link /exec pegado. Usa PRÁCTICA mientras tanto.</p>')+
+  '<button class="btn ghost" onclick="screenGuia()">📖 Ver la guía</button></div>');
+}
+function practica(){S.beta=true;S.hechos=[];goWelcome();}
+function encender(){
+  if(!API||API.indexOf('PEGA_AQUI')>=0){
+    set('<div class="card"><h2>Falta un paso</h2><p>Para encender el sistema real, primero hay que pegar el link <b>/exec</b> en el HTML. Avísale a Sofía o a Alan.</p>'+
+    '<button class="btn gold" onclick="practica()">Mientras tanto, entrar a PRÁCTICA</button><button class="btn ghost sm" onclick="screenModo()">Volver</button></div>');return;}
+  S.beta=false;S.hechos=[];goWelcome();
+}
+function goWelcome(){run('estadoInicial',[S.sdr]).then(function(e){S.estado=e;S.fecha=e.fecha;banner();paintKpis(e.kpi);screenBienvenida();}).catch(err);}
+
+/* 1 · FECHA */
+function screenBienvenida(){set('<div class="card"><h2>¿Qué fecha trabajamos hoy?</h2><p class="muted">Ya viene la de hoy. Cámbiala solo si te pones al corriente de otro día.</p>'+
+  '<input type="date" id="fch" value="'+S.fecha+'"><button class="btn navy" onclick="setFecha()">Continuar</button></div>');}
+function setFecha(){S.fecha=document.getElementById('fch').value||S.fecha;banner();screenAnimo();}
+function screenAnimo(){set('<div class="card"><h2>¿Cómo vienes hoy?</h2><p class="muted">Siempre 20 nuevos. Si vienes saturado, bajamos a 13 y damos más seguimiento.</p>'+
+  '<button class="btn ok" onclick="animo(\'Voy bien\',20)">💪 Voy bien — 20 nuevos</button>'+
+  '<button class="btn gold" onclick="animo(\'Algo saturado\',13)">😅 Algo saturado — 13 + seguimiento</button>'+
+  '<button class="btn ghost" onclick="animoAlan()">😵 Saturado — necesito apoyo</button></div>');}
+function animo(txt,meta){S.meta=meta;run('registrarSaturacion',[S.sdr,txt]);screenResumen();}
+function animoAlan(){run('registrarSaturacion',[S.sdr,'Saturado - pide apoyo']);
+  set('<div class="card center"><h2>Tranquilo, se vale 🙌</h2><p>Antes de seguir, toca base con Alan. Te ayuda a destrabar lo que necesites.</p>'+
+  '<button class="btn ok" onclick="alan()">💬 Escribir a Alan</button><button class="btn ghost" onclick="animo(\'Continuó ligero\',13)">Sigo, pero ligero (13)</button></div>');}
+
+/* 2 · RESUMEN */
+function screenResumen(){var p=S.estado.pend;
+  if((p.aceptar+p.ganchos+p.seguimientos)==0){
+    set('<div class="card center"><h2>Día desde cero 🚀</h2><p>Hoy toca prospección pura. Vamos por tus <b>'+S.meta+' nuevos</b>.</p>'+
+    '<p class="muted">Conforme pasen los días, aquí aparecerán solas las aceptaciones, los ganchos y los seguimientos.</p>'+
+    '<button class="btn navy big" onclick="scNuevosInit()">Empezar mis '+S.meta+' nuevos</button>'+
+    '<button class="btn gold" onclick="scAgregoHoy()">⚡ ¿Alguien te aceptó hoy? Mándale el gancho</button>'+
+    '<button class="btn ghost" onclick="screenGuia()">📖 Ver la guía</button></div>');return;
+  }
+  set('<div class="card"><div style="display:flex;justify-content:space-between;align-items:center"><h2>Plan de hoy</h2>'+
+  '<button class="btn ghost" style="width:auto;margin:0;padding:8px 12px" onclick="screenGuia()">📖 Guía</button></div>'+
+  '<p class="muted">Orden recomendado: primero seguimiento, luego los 20 nuevos.</p></div>'+
+  '<div class="card" style="border:2px solid #F2CB4D"><div style="display:flex;justify-content:space-between;align-items:center"><h2 style="font-size:16px">⚡ Me agregó hoy</h2><span class="pill">mismo día</span></div><p class="muted">Si alguien te aceptó hoy mismo, no esperes al día siguiente: márcalo y mándale el gancho ya para buscar la reunión.</p><button class="btn gold sm" onclick="scAgregoHoy()">Entrar</button></div>'+
+  blk('1 · Revisar aceptaciones',p.aceptar+' por revisar','Marca quién te aceptó.', 'scAceptar()',p.aceptar>0)+
+  blk('2 · Mandar gancho',p.ganchos+' conectados','Pídele el mensaje a Claude y envíalo.', 'scGanchos()',p.ganchos>0)+
+  blk('3 · Seguimientos',p.seguimientos+' en proceso','¿Qué pasó con cada quien? Día 3 / día 7.', 'scSeguir()',p.seguimientos>0)+
+  blk('4 · Prospectos nuevos','Meta: '+S.meta,'Investigar, interactuar e invitar.', 'scNuevosInit()',true));
+}
+function blk(t,badge,desc,onclick,active){return '<div class="card '+(active?'':'')+'" style="'+(active?'':'opacity:.55')+'"><div style="display:flex;justify-content:space-between;align-items:center">'+
+  '<h2 style="font-size:16px">'+t+'</h2><span class="pill">'+badge+'</span></div><p class="muted">'+desc+'</p>'+
+  (active?'<button class="btn navy sm" onclick="'+onclick+'">Entrar</button>':'<p class="muted">— nada pendiente —</p>')+'</div>';}
+
+/* 3 · ACEPTACIONES */
+function scAceptar(){run('listaAceptar').then(function(list){if(!list.length)return screenResumen();
+  var h='<div class="card"><h2>¿Quiénes te aceptaron?</h2><p class="muted">Toca a los que SÍ aceptaron. Los demás siguen esperando.</p></div>';
+  list.forEach(function(l){h+='<div class="card" style="margin:10px 0;padding:13px">'+
+    '<label class="check" style="margin:0;border:none;background:transparent;padding:0"><input type="checkbox" value="'+l.fila+'" class="acc"><div><b>'+esc(l.nombre)+'</b><br>'+
+    '<span class="muted">'+esc(l.cargo)+(l.empresa?' · '+esc(l.empresa):'')+' · invitado '+dd(l.finv)+'</span></div></label>'+btnLi(l)+'</div>';});
+  h+='<button class="btn ok" onclick="saveAcc()">Guardar aceptaciones</button><button class="btn ghost sm" onclick="screenResumen()">Volver</button>';set(h);});}
+function saveAcc(){var acc=[].slice.call(document.querySelectorAll('.acc:checked')).map(function(c){return parseInt(c.value);});
+  run('guardarAceptaciones',[acc]).then(function(){toast('Guardado ✓');refreshThen(screenResumen);});}
+
+/* 3b · ME AGREGÓ HOY (mismo día → gancho → reunión) */
+function scAgregoHoy(){S.hoyHechos=S.hoyHechos||[];
+  run('listaAceptar').then(function(list){
+    list=(list||[]).filter(function(l){return S.hoyHechos.indexOf(l.fila)<0;});
+    var h='<div class="card"><h2>⚡ Me agregó hoy</h2>'+
+      '<p class="muted">Estos son a los que ya les mandaste invitación y siguen sin confirmarse. Si alguno te aceptó HOY, márcalo y mándale el gancho el mismo día.</p></div>';
+    if(!list.length){h+='<div class="card center"><p>No hay invitaciones pendientes por confirmar ahora mismo.</p>'+
+      '<p class="muted">Cuando mandes nuevas invitaciones, aparecerán aquí para confirmarlas el mismo día.</p>'+
+      '<button class="btn navy" onclick="screenResumen()">Volver al menú</button></div>';set(h);return;}
+    list.forEach(function(l){
+      h+='<div class="card"><h2 style="font-size:16px">'+esc(l.nombre)+'</h2>'+
+         '<p class="muted">'+esc(l.cargo)+' · '+esc(l.empresa)+' · invitado '+dd(l.finv)+'</p>'+
+         btnLi(l)+
+         '<button class="btn ok sm" onclick="aceptoHoy('+J(l)+')">✅ Me aceptó hoy → mandar gancho</button></div>';
+    });
+    h+='<button class="btn ghost sm" onclick="screenResumen()">Volver al menú</button>';
+    set(h);
+  }).catch(err);}
+function aceptoHoy(l){
+  run('guardarAceptaciones',[[l.fila]]).then(function(){
+    S.hoyHechos=S.hoyHechos||[];S.hoyHechos.push(l.fila);toast('Aceptó hoy ✓');
+    renderGanchoHoy({fila:l.fila,nombre:l.nombre,cargo:l.cargo,empresa:l.empresa,url:l.url,face:S.fecha});
+  }).catch(err);}
+function renderGanchoHoy(l){
+  set('<div class="prog">Gancho del mismo día</div>'+
+  '<div class="card"><h2>'+esc(l.nombre)+'</h2><p class="muted">'+esc(l.cargo)+' · '+esc(l.empresa)+' · te aceptó hoy</p>'+
+  btnLi(l)+
+  '<div class="info">Pídele el mensaje a Claude, <b>mándalo por LinkedIn</b> y luego pégalo aquí para guardarlo. La meta es que de aquí salga una reunión.</div>'+
+  '<div class="warn">⚠️ Cuida el copy: JAMÁS se debe ver hecho con IA. Revísalo antes de mandar.</div>'+
+  promptBox(promptGancho(l))+
+  '<textarea id="gtx" placeholder="Pega aquí el mensaje que te dio Claude (el que ya mandaste)…"></textarea>'+
+  '<button class="btn ok" onclick="saveGanchoHoy('+l.fila+')">Guardar y marcar enviado</button>'+
+  '<button class="btn ghost sm" onclick="regresarProspectoHoy('+l.fila+')">↩︎ Aún no me acepta — regresar a verificación</button>'+
+  '<button class="btn ghost sm" onclick="scAgregoHoy()">Volver a la lista</button></div>');}
+function saveGanchoHoy(fila){var t=document.getElementById('gtx').value.trim();if(!t){toast('Pega el mensaje primero');return;}
+  run('guardarGancho',[fila,t]).then(function(){toast('Gancho enviado ✓');refreshThen(scAgregoHoy);});}
+
+/* 4 · GANCHOS */
+function scGanchos(){run('listaGanchos').then(function(list){if(!list.length)return screenResumen();S.ganchos=list;S.gi=0;renderGancho();});}
+function renderGancho(){var l=S.ganchos[S.gi];if(!l){toast('Ganchos listos ✓');return refreshThen(screenResumen);}
+  set('<div class="prog">Gancho '+(S.gi+1)+' de '+S.ganchos.length+'</div>'+
+  '<div class="card"><h2>'+esc(l.nombre)+'</h2><p class="muted">'+esc(l.cargo)+' · '+esc(l.empresa)+' · aceptó '+dd(l.face)+'</p>'+
+  btnLi(l)+
+  '<div class="info">Pide el mensaje a Claude, <b>mándalo por LinkedIn</b> y luego pégalo aquí para guardarlo.</div>'+
+  '<div class="warn">⚠️ Cuida el copy: JAMÁS se debe ver hecho con IA. Revísalo antes de mandar.</div>'+
+  promptBox(promptGancho(l))+
+  '<textarea id="gtx" placeholder="Pega aquí el mensaje que te dio Claude (el que ya mandaste)…"></textarea>'+
+  '<button class="btn ok" onclick="saveGancho('+l.fila+')">Guardar y marcar enviado</button>'+
+  '<button class="btn ghost sm" onclick="S.gi++;renderGancho()">Saltar por ahora</button>'+
+  '<button class="btn ghost sm" onclick="regresarProspecto('+l.fila+')">↩︎ Aún no me acepta — regresar a verificación</button></div>');}
+function regresarProspecto(fila){if(!confirm('¿Regresar este prospecto a "Revisar aceptaciones"? Úsalo solo si NO te aceptó.'))return;
+  run('regresarAInvitado',[fila]).then(function(){toast('Regresado a aceptaciones ✓');if(S.ganchos){S.ganchos.splice(S.gi,1);}refreshThen(renderGancho);}).catch(err);}
+function regresarProspectoHoy(fila){if(!confirm('¿Regresar este prospecto a "Revisar aceptaciones"? Úsalo solo si NO te aceptó.'))return;
+  run('regresarAInvitado',[fila]).then(function(){toast('Regresado a aceptaciones ✓');if(S.hoyHechos){var k=S.hoyHechos.indexOf(fila);if(k>=0)S.hoyHechos.splice(k,1);}refreshThen(scAgregoHoy);}).catch(err);}
+function saveGancho(fila){var t=document.getElementById('gtx').value.trim();if(!t){toast('Pega el mensaje primero');return;}
+  run('guardarGancho',[fila,t]).then(function(){toast('Enviado ✓');S.gi++;renderGancho();});}
+
+/* 5 · SEGUIMIENTOS (uno por uno) */
+function scSeguir(){run('listaSeguimientos').then(function(list){if(!list.length)return screenResumen();S.seg=list;S.si=0;renderSeg();});}
+function renderSeg(){var l=S.seg[S.si];if(!l){toast('Seguimientos al día ✓');return refreshThen(screenResumen);}
+  set('<div class="prog">Seguimiento '+(S.si+1)+' de '+S.seg.length+'</div>'+
+  '<div class="card"><h2>'+esc(l.nombre)+'</h2><p class="muted">'+esc(l.cargo)+' · '+esc(l.empresa)+'</p>'+
+  '<div class="info">Ya te conectó y ya le escribiste. No ha contestado. Decide el siguiente paso.</div>'+
+  '<div class="dates"><b>Invitado:</b> '+dd(l.finv)+'<br><b>Aceptó:</b> '+dd(l.face)+'<br><b>Le escribiste:</b> '+dd(l.fgan)+' ('+l.dias+' días)<br><b>Toca seguimiento:</b> '+dd(l.prox)+(l.vence?' &nbsp;<span class="tag due">Toca hoy</span>':'')+'</div>'+
+  (l.bit?'<div class="bitlog">'+esc(l.bit)+'</div>':'')+
+  btnLi(l)+
+  '<h2 style="margin-top:14px;font-size:17px">¿Qué pasó con '+pn(l.nombre)+'?</h2>'+
+  '<button class="btn ok" onclick="renderResponder('+J(l)+')">💬 Me contestó</button>'+
+  '<button class="btn navy" onclick="segAct('+l.fila+',\'reunion\')">🎯 Quiere reunión</button>'+
+  '<button class="btn gold" onclick="segRecord()">🔁 Sigue sin contestar — mandar recordatorio</button>'+
+  '<button class="btn ghost" onclick="segAct('+l.fila+',\'descartar\')">❌ Ya no responde, descartar</button>'+
+  '<div id="recz"></div>'+
+  '<button class="btn ghost sm" onclick="screenResumen()">Pausar y volver al menú</button></div>');}
+function segRecord(){var l=S.seg[S.si];
+  document.getElementById('recz').innerHTML='<div class="warn" style="margin-top:14px">⚠️ El recordatorio JAMÁS debe verse hecho con IA. Revísalo.</div>'+
+  promptBox(promptSeg(l))+
+  '<button class="btn ok sm" onclick="segAct('+l.fila+',\'seguimiento\')">✅ Listo, mandé el recordatorio</button>';}
+function segAct(fila,accion){run('accionSeguimiento',[fila,accion,'']).then(function(){
+  toast(accion=='reunion'?'🎯 Reunión registrada':'Hecho ✓');S.si++;renderSeg();});}
+
+/* 5b · ¿QUÉ TE DIJO? (manejo de respuestas) */
+function renderResponder(l){set('<div class="prog">Respuesta de '+pn(l.nombre)+'</div>'+
+  '<div class="card"><h2>¿Qué te dijo '+pn(l.nombre)+'?</h2><p class="muted">Elige lo más parecido. Te armo la respuesta correcta.</p>'+
+  '<button class="btn ghost" onclick="resp('+J(l)+',\'masinfo\')">🤔 Le interesa / quiere saber más</button>'+
+  '<button class="btn ghost" onclick="resp('+J(l)+',\'reporte\')">📊 Pide el análisis/reporte que ofrecimos</button>'+
+  '<button class="btn ghost" onclick="resp('+J(l)+',\'agenda\')">🎯 Quiere agendar</button>'+
+  '<button class="btn ghost" onclick="resp('+J(l)+',\'objecion\')">🛑 Objeción / no sé qué responder</button>'+
+  '<div id="respz"></div>'+
+  '<button class="btn ghost sm" onclick="renderSeg()">Volver</button></div>');}
+function resp(l,tipo){var h='';
+  if(tipo=='masinfo')h='<div class="warn">⚠️ JAMÁS se debe ver hecho con IA.</div>'+
+    promptBox(promptMasInfo(l))+
+    '<button class="btn ok" onclick="respDone('+J(l)+',\'respondio\')">✅ Listo, lo mandé → siguiente</button>';
+  if(tipo=='reporte')h='<div class="info">🔥 Pedir el reporte es <b>alta intención</b>. El reporte se lo presentas en el meet — agéndalo ahí.</div>'+
+    '<div class="warn">⚠️ JAMÁS se debe ver hecho con IA.</div>'+
+    promptBox(promptReporte(l))+
+    '<button class="btn navy" onclick="respDone('+J(l)+',\'reunion\')">🎯 Ya quiere meet → marcar reunión</button>'+
+    '<button class="btn ok sm" onclick="respDone('+J(l)+',\'respondio\')">Sigo en conversación</button>'+
+    '<p class="muted">Si insiste en recibir el reporte ANTES del meet, eso lo ves con Alan.</p>'+
+    '<button class="btn ghost sm" onclick="alan()">💬 Tocar base con Alan</button>';
+  if(tipo=='agenda')h='<div class="copybox"><div class="lbl">Mándale este link</div>'+CAL+'</div>'+
+    promptBox(promptAgenda(l))+
+    '<button class="btn navy" onclick="respDone('+J(l)+',\'reunion\')">🎯 Marcar reunión agendada</button>';
+  if(tipo=='objecion')h='<div class="warn">⚠️ JAMÁS se debe ver hecho con IA.</div>'+
+    promptBox(promptObjecion(l))+
+    '<button class="btn ok sm" onclick="respDone('+J(l)+',\'respondio\')">✅ Lo respondí → siguiente</button>'+
+    '<p class="muted">¿Sigues sin saber qué decir?</p>'+
+    '<button class="btn ghost sm" onclick="alan()">💬 Tocar base con Alan</button>';
+  document.getElementById('respz').innerHTML=h;}
+function copyObjecion(l){var o=(document.getElementById('objTxt')||{}).value;copy(promptObjecion(l,(o||'').trim()));}
+function respDone(l,accion){run('accionSeguimiento',[l.fila,accion,'']).then(function(){
+  toast(accion=='reunion'?'🎯 Reunión registrada':'Hecho ✓');S.si++;renderSeg();});}
+
+/* 6 · NUEVOS */
+function scNuevosInit(){var faltan=S.meta-(S.estado.kpi.invitesHoy||0);if(faltan<0)faltan=0;
+  run('siguientesNuevos',[faltan,S.hechos]).then(function(list){S.nuevos=list;S.idx=0;if(!list.length)return screenFin();renderNuevo();});}
+function renderNuevo(){var l=S.nuevos[S.idx];if(!l)return screenFin();var tot=S.nuevos.length;
+  set('<div class="prog">Prospecto '+(S.idx+1)+' de '+tot+' · '+S.sdr+'</div>'+
+  '<div class="bar"><i style="width:'+Math.round(S.idx/tot*100)+'%"></i></div>'+
+  '<div class="card"><h2>'+esc(l.nombre)+'</h2><p class="muted">'+esc(l.pos)+'</p>'+
+  '<div class="copybox"><div class="lbl">Paso 1 · Pon esto en el buscador de LinkedIn</div>'+esc(l.buscar)+'</div>'+
+  '<div class="row" style="margin-top:8px"><button class="btn gold sm" onclick="copy('+J(l.buscar)+',this)">📋 Copiar</button>'+
+  '<button class="btn navy sm" onclick="window.open(\'https://www.linkedin.com/search/results/people/?keywords='+encodeURIComponent(l.buscar)+'\',\'_blank\')">Abrir LinkedIn ↗</button></div>'+
+  '<h2 style="margin-top:18px;font-size:16px">Paso 2 · Deja intención (no llegues en frío)</h2>'+
+  '<label class="check"><input type="checkbox" id="ck_like"> Le di like a sus últimas 2 publicaciones</label>'+
+  '<label class="check"><input type="checkbox" id="ck_rev"> Revisé su perfil y lo que publica</label>'+
+  '<p class="muted" style="margin-top:10px"><b>¿Vas a comentar una de sus publicaciones?</b> (entrar caliente)</p>'+
+  '<div class="row"><button class="btn ghost sm" id="bp_si" onclick="postSi(true)">Sí, comentar</button>'+
+  '<button class="btn ghost sm" id="bp_no" onclick="postSi(false)">No por ahora</button></div>'+
+  '<div id="postzone"></div>'+
+  '<h2 style="margin-top:18px;font-size:16px">Paso 3 · Pega su LinkedIn URL</h2>'+
+  '<input type="text" id="url" placeholder="https://www.linkedin.com/in/…">'+
+  '<button class="btn ok" style="margin-top:18px" onclick="saveNuevo('+l.fila+')">✅ Ya mandé la invitación → siguiente</button>'+
+  '<button class="btn ghost sm" onclick="descartarNuevo('+l.fila+')">❌ No lo encontré — descartar prospecto</button>'+
+  '<button class="btn ghost sm" onclick="screenResumen()">Pausar y volver al menú</button></div>');}
+function descartarNuevo(fila){
+  run('accionSeguimiento',[fila,'descartar','no encontrado en LinkedIn']).then(function(){
+    toast('Descartado ✓');S.hechos.push(fila);S.idx++;renderNuevo();}).catch(err);}
+function postSi(si){
+  document.getElementById('bp_si').style.background=si?'#0a0a0a':'#fff';document.getElementById('bp_si').style.color=si?'#fff':'#0a0a0a';
+  document.getElementById('bp_no').style.background=!si?'#0a0a0a':'#fff';document.getElementById('bp_no').style.color=!si?'#fff':'#0a0a0a';
+  var l=S.nuevos[S.idx];
+  if(si){document.getElementById('postzone').innerHTML=
+    '<div class="warn">⚠️ El comentario es SOLO para abrir conversación: una pregunta o algo que invite a responder. Nada de vender ni mencionar Codefy. JAMÁS se vea IA.</div>'+
+    promptBox(promptComentario(l))+
+    '<input type="text" id="comTxt" placeholder="(Opcional) pega aquí el comentario que dejaste">'+
+    '<label class="check"><input type="checkbox" id="ck_com"> Dejé un comentario con valor</label>';
+  } else {document.getElementById('postzone').innerHTML='<p class="muted">Listo. Con tu like ya diste intención. Manda la invitación.</p>';}
+}
+function copyComentario(l){var s=(document.getElementById('postTxt')||{}).value;copy(promptComentario(l,(s||'').trim()));}
+function saveNuevo(fila){var url=document.getElementById('url').value.trim();
+  if(!url||url.indexOf('linkedin.com')<0){toast('Pega la URL de LinkedIn');return;}
+  var like=document.getElementById('ck_like').checked;
+  var comChk=document.getElementById('ck_com');var comento=comChk?comChk.checked:false;
+  var comTxt=document.getElementById('comTxt')?document.getElementById('comTxt').value.trim():'';
+  run('registrarNuevo',[fila,{url:url,like:like,comento:comento,comentario:comTxt,fecha:S.fecha,sdr:S.sdr}])
+    .then(function(){S.hechos.push(fila);S.estado.kpi.invitesHoy++;toast('Invite registrado ✓');S.idx++;renderNuevo();});}
+
+/* FIN */
+function screenFin(){run('fraseDelDia').then(function(f){
+  set('<div class="card center"><div class="big">TERMINASTE POR HOY</div><div style="font-size:40px">🏆</div><h2>EXCELENTE TRABAJO, '+S.sdr+'</h2>'+
+  '<p class="muted">Hiciste '+(S.estado.kpi.invitesHoy)+' invites hoy. Eso es pipeline real — y pipeline es dinero en camino. 💸</p>'+
+  '<div class="frase">"'+esc(f)+'"</div><button class="btn navy" onclick="screenModo()">Volver al inicio</button></div>');});}
+function refreshThen(cb){run('estadoInicial',[S.sdr]).then(function(e){S.estado=e;paintKpis(e.kpi);cb();});}
+
+screenModo();
+</script>
+</body></html>
